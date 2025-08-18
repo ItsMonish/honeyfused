@@ -1,0 +1,11 @@
+[default]
+region = $DEFAULT_REGION
+output = $DEFAULT_OUTPUT
+
+[profile dev]
+region = $DEV_REGION
+output = $DEV_OUTPUT
+
+[profile prod]
+region = $PROD_REGION
+output = $PROD_OUTPUT
