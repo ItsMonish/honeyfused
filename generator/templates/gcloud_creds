@@ -1,0 +1,7 @@
+{
+  "client_id": "$CLIENT_ID",
+  "client_secret": "$CLIENT_SECRET",
+  "quota_project_id": "fuse-deployment-3942",
+  "refresh_token": "$REFRESH_TOKEN",
+  "type": "authorized_user"
+}

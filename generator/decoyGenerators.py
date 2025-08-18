@@ -2,6 +2,7 @@ from base64 import b64encode
 from jwt import encode
 from random import randbytes, randrange, choice
 from string import Template
+from uuid import uuid4
 
 
 class DecoyGenerators:
@@ -87,6 +88,32 @@ class DecoyGenerators:
 
         return templ.substitute(subs).encode()
 
+    @staticmethod
+    def generateAzureCred() -> bytes:
+        subs = dict()
+        templ = generateTemplate("./templates/azure_credentials")
+        subs["CLIENT_ID"] = getRandUUID()
+        subs["CLIENT_SECRET"] = getRandomString(randrange(40, 80))
+        subs["SUBSCRIPTION_ID"] = getRandUUID()
+        subs["TENANT_ID"] = getRandUUID()
+
+        return templ.substitute(subs).encode()
+
+    @staticmethod
+    def generateGCloudCred() -> bytes:
+        subs = dict()
+        templ = generateTemplate("./templates/gcloud_creds")
+        subs["CLIENT_ID"] = (
+            getRandNums(12)
+            + "-"
+            + getRandAlnumLower(30)
+            + ".apps.googleusercontent.com"
+        )
+        subs["CLIENT_SECRET"] = getRandAlnum(randrange(24, 36))
+        subs["REFRESH_TOKEN"] = "1//" + getRandomBase64(randrange(200, 400))[:-10]
+
+        return templ.substitute(subs).encode()
+
 
 def generateTemplate(path: str) -> Template:
     with open(path) as f:
@@ -111,7 +138,46 @@ def getRandAlnumUpper(length: int) -> str:
     return "".join(randStr)
 
 
+def getRandNums(length: int) -> str:
+    values = "1234567890"
+    randStr = []
+    for _ in range(length):
+        randStr.append(choice(values))
+    return "".join(randStr)
+
+
+def getRandAlnumLower(length: int) -> str:
+    values = "abcdefghijklmnopqrstuvwxyz1234567890"
+    randStr = []
+    for _ in range(length):
+        randStr.append(choice(values))
+    return "".join(randStr)
+
+
+def getRandAlnum(length: int) -> str:
+    values = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    randStr = []
+    for _ in range(length):
+        randStr.append(choice(values))
+    return "".join(randStr)
+
+
+def getRandomString(length: int) -> str:
+    values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*`-=_+|;':,./<>?"
+    randStr = []
+    for _ in range(length):
+        randStr.append(choice(values))
+    return "".join(randStr)
+
+
 def getFakeJWT() -> str:
     return encode(
         {"content": "not a fake payload"}, getRandomBase64(20), algorithm="HS256"
     )
+
+
+def getRandUUID() -> str:
+    return str(uuid4())
+
+
+print(DecoyGenerators.generateGCloudCred().decode())
