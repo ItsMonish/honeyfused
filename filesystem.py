@@ -1,4 +1,3 @@
-from logging import exception
 from typing import Any, Iterable, Optional, List
 from generator import fileGenerator
 from time import time
@@ -96,7 +95,6 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
     @fuse.overrides(fuse.Operations)
     def readdir(self, path: str, fh: int) -> List[str]:
         dir = {".", ".."}
-        print("DEBUG: PATH: {}".format(path))
         for x in self.__files:
             if x.startswith(path) and len(x) > len(path):
                 x = x.removeprefix(path)
@@ -122,7 +120,7 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
     def rename(self, old: str, new: str) -> int:
         if old in self.__data:
             self.__data[new] = self.__data.pop(old)
-        if old in self.__data:
+        if old in self.__files:
             self.__files[new] = self.__files.pop(old)
         else:
             raise fuse.FuseOSError(errno.ENOENT)
