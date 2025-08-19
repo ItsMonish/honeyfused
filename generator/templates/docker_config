@@ -1,0 +1,20 @@
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "$DOCKERHUB_AUTH"
+    },
+    "ghcr.io": {
+      "auth": "$GITHUB_PACKAGES_AUTH"
+    },
+    "registry.gitlab.com": {
+      "auth": "$GITLAB_REGISTRY_AUTH"
+    },
+    "123456789012.dkr.ecr.us-east-1.amazonaws.com": {
+      "auth": "$AWS_ECR_AUTH"
+    }
+  },
+  "credsStore": "desktop",
+  "HttpHeaders": {
+    "User-Agent": "Docker-Client/20.10.21 (linux)"
+  }
+}

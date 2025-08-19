@@ -114,6 +114,26 @@ class DecoyGenerators:
 
         return templ.substitute(subs).encode()
 
+    @staticmethod
+    def generateTFCred() -> bytes:
+        subs = dict()
+        templ = generateTemplate("./templates/tf_credentials")
+        subs["CLOUD_TOKEN"] = "atlastv1." + getRandAlnum(randrange(90, 120))
+        subs["ENTERPRISE_TOKEN"] = "atlastv1." + getRandAlnum(randrange(90, 120))
+
+        return templ.substitute(subs).encode()
+
+    @staticmethod
+    def generateDockerConfig() -> bytes:
+        subs = dict()
+        templ = generateTemplate("./templates/docker_config")
+        subs["DOCKERHUB_AUTH"] = getRandomBase64(randrange(20, 40))
+        subs["GITHUB_PACKAGES_AUTH"] = getRandomBase64(randrange(20, 40))
+        subs["GITLAB_REGISTRY_AUTH"] = getRandomBase64(randrange(20, 40))
+        subs["AWS_ECR_AUTH"] = getRandomBase64(randrange(20, 40))
+
+        return templ.substitute(subs).encode()
+
 
 def generateTemplate(path: str) -> Template:
     with open(path) as f:
@@ -178,6 +198,3 @@ def getFakeJWT() -> str:
 
 def getRandUUID() -> str:
     return str(uuid4())
-
-
-print(DecoyGenerators.generateGCloudCred().decode())
