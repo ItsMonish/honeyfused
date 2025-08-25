@@ -17,4 +17,4 @@ targets:
   # - docker   
   # - bitcoin  
 
-decoys: 1
+decoys: 2

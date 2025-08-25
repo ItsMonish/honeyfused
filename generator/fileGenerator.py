@@ -42,9 +42,9 @@ class FileGenerator:
                 return
             self.__data[file] = func()
             self.__files[file] = {
-                "st_mode": (stat.S_IFDIR | 0o644),
+                "st_mode": (stat.S_IFREG | 0o644),
                 "st_nlink": 2,
-                "st_size": 20,
+                "st_size": len(self.__data[file]),
                 "st_ctime": self.__getTime(randrange(200, 400)),
                 "st_mtime": self.__getTime(randrange(100, 200)),
                 "st_atime": self.__getTime(randrange(0, 7)),
