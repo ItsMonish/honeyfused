@@ -134,6 +134,20 @@ class DecoyGenerators:
 
         return templ.substitute(subs).encode()
 
+    @staticmethod
+    def generateBitcoinConfig() -> bytes:
+        subs = dict()
+        templ = generateTemplate("./templates/bitcoin_conf")
+        subs["RPC_USER"] = "bitcoin" + getRandAlnum(7)
+        subs["RPC_PASSWORD"] = getRandomString(randrange(24, 32))
+        subs["WALLET_NAME"] = choice(["cold", "hot", "trading"]) + "_wallet.dat"
+
+        return templ.substitute(subs).encode()
+
+    @staticmethod
+    def generateBitcoinWallet() -> bytes:
+        return getRandomString(randrange(1 * int(1e6), 2 * int(1e6))).encode()
+
 
 def generateTemplate(path: str) -> Template:
     with open(path) as f:
