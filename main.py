@@ -1,19 +1,44 @@
 import argparse
-import logging
+from generator.fileConfigs import FILE_CONFIGS
 from filesystem import HoneyFileSystem
+import logging
 import mfusepy as fuse
+import os
+from random import choice
+from yaml import safe_load, YAMLError
 
 MOUNT_POINT = "/tmp/testing"
 
 
 def main():
     args = parseArguments()
+    conf = parseConfig()
+    cleanupList = []
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     try:
-        fuse.FUSE(HoneyFileSystem(), MOUNT_POINT, foreground=True)
+        for _ in range(conf["decoys"]):
+            target = choice(conf["targets"])
+            conf["targets"].remove(target)
+            if target not in FILE_CONFIGS:
+                print(
+                    "[!!]: Option {} in config.yml is not found or supported".format(
+                        target
+                    )
+                )
+                exit(1)
+            dPath: str = str(FILE_CONFIGS[target]["directory"])
+            if not os.path.exists(dPath):
+                os.mkdir(dPath)
+                cleanupList.append(dPath)
+            fuse.FUSE(HoneyFileSystem(target), dPath, foreground=True)
+            print("[ii]: Mounted a filesystem on {}".format(target))
     except RuntimeError:
         print("[!!]: Mount point busy or doesn't exist")
+    except KeyboardInterrupt:
+        for it in cleanupList:
+            os.rmdir(it)
+        print("[ii]: Exitting...")
 
 
 def parseArguments() -> argparse.Namespace:
@@ -27,6 +52,17 @@ def parseArguments() -> argparse.Namespace:
     parser.add_argument("-c", "--config", type=str, help="Path to configuration file")
     args = parser.parse_args()
     return args
+
+
+def parseConfig() -> dict:
+    con = dict()
+    try:
+        with open("./config.yml") as f:
+            con = safe_load(f)
+    except YAMLError as e:
+        print("[!!]: Error reading config")
+        print(e)
+    return con
 
 
 if __name__ == "__main__":

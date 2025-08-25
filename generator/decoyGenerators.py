@@ -9,7 +9,7 @@ class DecoyGenerators:
     @staticmethod
     def generateKubeConfig() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/kubeconfig")
+        templ = generateTemplate("./generator/templates/kubeconfig")
         subs["DEV_CA_DATA"] = getFakeCertificate()
         subs["STAGING_CA_DATA"] = getFakeCertificate()
         subs["PROD_CA_DATA"] = getFakeCertificate()
@@ -30,7 +30,7 @@ class DecoyGenerators:
     @staticmethod
     def generateAWSCredential() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/aws_credentials")
+        templ = generateTemplate("./generator/templates/aws_credentials")
         subs["DEFAULT_ACCESS_KEY"] = "AKIA" + getRandAlnumUpper(16)
         subs["DEV_ACCESS_KEY"] = "AKIA" + getRandAlnumUpper(16)
         subs["PROD_ACCESS_KEY"] = "AKIA" + getRandAlnumUpper(16)
@@ -76,7 +76,7 @@ class DecoyGenerators:
             "me-south-1",
             "sa-east-1",
         ]
-        templ = generateTemplate("./templates/aws_config")
+        templ = generateTemplate("./generator/templates/aws_config")
         region = choice(aws_regions)
         subs["DEFAULT_REGION"] = region
         subs["DEV_REGION"] = region
@@ -91,7 +91,7 @@ class DecoyGenerators:
     @staticmethod
     def generateAzureCred() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/azure_credentials")
+        templ = generateTemplate("./generator/templates/azure_credentials")
         subs["CLIENT_ID"] = getRandUUID()
         subs["CLIENT_SECRET"] = getRandomString(randrange(40, 80))
         subs["SUBSCRIPTION_ID"] = getRandUUID()
@@ -102,7 +102,7 @@ class DecoyGenerators:
     @staticmethod
     def generateGCloudCred() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/gcloud_creds")
+        templ = generateTemplate("./generator/templates/gcloud_creds")
         subs["CLIENT_ID"] = (
             getRandNums(12)
             + "-"
@@ -110,14 +110,16 @@ class DecoyGenerators:
             + ".apps.googleusercontent.com"
         )
         subs["CLIENT_SECRET"] = getRandAlnum(randrange(24, 36))
-        subs["REFRESH_TOKEN"] = "1//" + getRandomBase64(randrange(200, 400))[:-10]
+        subs["REFRESH_TOKEN"] = (
+            "./generator//" + getRandomBase64(randrange(200, 400))[:-10]
+        )
 
         return templ.substitute(subs).encode()
 
     @staticmethod
     def generateTFCred() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/tf_credentials")
+        templ = generateTemplate("./generator/templates/tf_credentials")
         subs["CLOUD_TOKEN"] = "atlastv1." + getRandAlnum(randrange(90, 120))
         subs["ENTERPRISE_TOKEN"] = "atlastv1." + getRandAlnum(randrange(90, 120))
 
@@ -126,7 +128,7 @@ class DecoyGenerators:
     @staticmethod
     def generateDockerConfig() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/docker_config")
+        templ = generateTemplate("./generator/templates/docker_config")
         subs["DOCKERHUB_AUTH"] = getRandomBase64(randrange(20, 40))
         subs["GITHUB_PACKAGES_AUTH"] = getRandomBase64(randrange(20, 40))
         subs["GITLAB_REGISTRY_AUTH"] = getRandomBase64(randrange(20, 40))
@@ -137,7 +139,7 @@ class DecoyGenerators:
     @staticmethod
     def generateBitcoinConfig() -> bytes:
         subs = dict()
-        templ = generateTemplate("./templates/bitcoin_conf")
+        templ = generateTemplate("./generator/templates/bitcoin_conf")
         subs["RPC_USER"] = "bitcoin" + getRandAlnum(7)
         subs["RPC_PASSWORD"] = getRandomString(randrange(24, 32))
         subs["WALLET_NAME"] = choice(["cold", "hot", "trading"]) + "_wallet.dat"

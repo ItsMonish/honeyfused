@@ -1,7 +1,7 @@
 # List of possible places honeyfused can deploy and mount decoy directories
 # Possible options and their target directory are:
 #       - kube      : ~/.kube/config (Kubernetes clusters)
-#       - aws       : ~/.aws/credentials/{credentials,config} (AWS Keys and config)
+#       - aws       : ~/.aws/{credentials,config} (AWS Keys and config)
 #       - azure     : ~/.azure/credentials.json (Azure auth keys)
 #       - gcloud    : ~/.gcloud/application_default_credentials.json (Google cloud)
 #       - terraform : ~/.terraform.d/credentials.tfrc.json (Terraform credentials)
@@ -15,7 +15,6 @@ targets:
   - gcloud   
   # - terraform
   # - docker   
-  # - documents
   # - bitcoin  
 
-decoys: 2
+decoys: 1

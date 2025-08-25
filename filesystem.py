@@ -11,9 +11,9 @@ import struct
 class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
     use_ns = True
 
-    def __init__(self) -> None:
+    def __init__(self, target: str) -> None:
         super().__init__()
-        fGen = fileGenerator.FileGenerator()
+        fGen = fileGenerator.FileGenerator(target)
         self.__files: dict[str, dict[str, Any]] = fGen.getFiles()
         self.__data: dict[str, bytes] = fGen.getFileData()
 

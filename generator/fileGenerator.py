@@ -1,64 +1,54 @@
 from collections import defaultdict
-from typing import Any
+from .fileConfigs import FILE_CONFIGS
+from random import randrange
+from typing import Any, Callable
 from time import time
 import stat
 
 
 class FileGenerator:
-    def __init__(self) -> None:
-        now: int = int(time() * 1e9)
+    def __init__(self, target: str) -> None:
+        self.__target = target
         self.__files: dict[str, dict[str, Any]] = {
             "/": {
                 "st_mode": (stat.S_IFDIR | 0o755),
-                "st_ctime": now,
-                "st_mtime": now,
-                "st_atime": now,
+                "st_ctime": self.__getTime(randrange(365, 730)),
+                "st_mtime": self.__getTime(randrange(1, 3)),
+                "st_atime": self.__getTime(randrange(1, 3)),
                 "st_nlink": 2,
             }
         }
         self.__data: dict[str, bytes] = defaultdict(bytes)
         self.__isGenerated: bool = False
 
-    def __getTime(self) -> int:
-        return int(time() * 1e9)
+    def __getTime(self, days: int = 0) -> int:
+        return int((time() - (86400 * days)) * 1e9)
 
     def __generateFiles(self) -> None:
-        now = self.__getTime()
-        self.__files["/creds"] = {
-            "st_mode": (stat.S_IFDIR | 0o644),
-            "st_nlink": 2,
-            "st_size": 20,
-            "st_ctime": now,
-            "st_mtime": now,
-            "st_atime": now,
-        }
-        self.__files["/creds/pass.txt"] = {
-            "st_mode": (stat.S_IFREG | 0o644),
-            "st_nlink": 1,
-            "st_size": 20,
-            "st_ctime": now,
-            "st_mtime": now,
-            "st_atime": now,
-        }
-        self.__data["/creds/pass.txt"] = "supersecretpassword".encode()
-        self.__files["/creds/user.txt"] = {
-            "st_mode": (stat.S_IFREG | 0o644),
-            "st_nlink": 1,
-            "st_size": 13,
-            "st_ctime": now,
-            "st_mtime": now,
-            "st_atime": now,
-        }
-        self.__data["/creds/user.txt"] = "notausername".encode()
-        self.__files["/ssh.key"] = {
-            "st_mode": (stat.S_IFREG | 0o644),
-            "st_nlink": 1,
-            "st_size": 8,
-            "st_ctime": now,
-            "st_mtime": now,
-            "st_atime": now,
-        }
-        self.__data["/ssh.key"] = "notakey".encode()
+        if FILE_CONFIGS.get(self.__target) == None:
+            print("[!!]: Target {} not found. Skipping...")
+            return
+        target = FILE_CONFIGS[self.__target]
+        if not isinstance(target["files"], dict):
+            print('[!!]: Error in internal config target["files"] is not dict')
+            return
+        for file, func in target["files"].items():
+            if not isinstance(func, Callable):
+                print(
+                    '[!!]: Error in internal config target["files"]["{}"] is not a function'.format(
+                        file
+                    )
+                )
+                return
+            self.__data[file] = func()
+            self.__files[file] = {
+                "st_mode": (stat.S_IFDIR | 0o644),
+                "st_nlink": 2,
+                "st_size": 20,
+                "st_ctime": self.__getTime(randrange(200, 400)),
+                "st_mtime": self.__getTime(randrange(100, 200)),
+                "st_atime": self.__getTime(randrange(0, 7)),
+            }
         self.__isGenerated = True
 
     def getFiles(self) -> dict[str, dict[str, Any]]:
