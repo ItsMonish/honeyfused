@@ -1,5 +1,6 @@
 from collections import defaultdict
 import logging
+import os
 from .fileConfigs import FILE_CONFIGS
 from random import randrange
 from typing import Any, Callable
@@ -17,6 +18,8 @@ class FileGenerator:
                 "st_ctime": self.__getTime(randrange(365, 730)),
                 "st_mtime": self.__getTime(randrange(1, 3)),
                 "st_atime": self.__getTime(randrange(1, 3)),
+                "st_uid": os.getuid(),
+                "st_gid": os.getgid(),
                 "st_nlink": 2,
             }
         }
@@ -52,6 +55,8 @@ class FileGenerator:
                 "st_ctime": self.__getTime(randrange(200, 400)),
                 "st_mtime": self.__getTime(randrange(100, 200)),
                 "st_atime": self.__getTime(randrange(0, 7)),
+                "st_uid": os.getuid(),
+                "st_gid": os.getgid(),
             }
             self.__logger.info(
                 "[ii]: Generated file and contents for {} at {}".format(
