@@ -22,10 +22,18 @@ def main():
         level=logging.ERROR, format="%(filename)s:%(lineno)d - %(message)s"
     )
     fs_log = logging.getLogger()
+    alert_log = logging.getLogger("alert")
+    alert_log.setLevel(logging.INFO)
     if args.fs_debug:
         fs_log.setLevel(logging.DEBUG)
     if args.debug:
         app_log.setLevel(logging.INFO)
+    if args.out is not None:
+        alertFormatter = logging.Formatter("%(asctime)s - %(message)s")
+        alertFileHandler = logging.FileHandler(args.out)
+        alertFileHandler.setFormatter(alertFormatter)
+        alert_log.addHandler(alertFileHandler)
+        alert_log.propagate = False
     try:
         for _ in range(conf["decoys"]):
             target = choice(conf["targets"])
@@ -83,6 +91,12 @@ def parseArguments() -> argparse.Namespace:
         "--debug",
         action="store_true",
         help="Enable verbose debug output for application",
+    )
+    parser.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        help="Path to output file for alerts. Defaults to stdout",
     )
     parser.add_argument("-c", "--config", type=str, help="Path to configuration file")
     args = parser.parse_args()

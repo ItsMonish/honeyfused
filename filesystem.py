@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Iterable, Optional, List
 from generator import fileGenerator
 from time import time
@@ -13,7 +14,9 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     def __init__(self, target: str) -> None:
         super().__init__()
+        self.__target = target
         fGen = fileGenerator.FileGenerator(target)
+        self.__alertLog: logging.Logger = logging.getLogger("alert")
         self.__files: dict[str, dict[str, Any]] = fGen.getFiles()
         self.__data: dict[str, bytes] = fGen.getFileData()
 
@@ -41,6 +44,11 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def create(self, path: str, mode: int, fi=None) -> int:
+        self.__alertLog.info(
+            "Created file {} with mode {} at target {}".format(
+                path, mode, self.__target
+            )
+        )
         now = self.__getTime()
         self.__files[path] = {
             "st_mode": (stat.S_IFREG | mode),
@@ -74,6 +82,11 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def mkdir(self, path: str, mode: int) -> int:
+        self.__alertLog.info(
+            "Created directory {} with mode {} at target".format(
+                path, mode, self.__target
+            )
+        )
         now = self.__getTime()
         self.__files[path] = {
             "st_mode": (stat.S_IFDIR | mode),
@@ -89,6 +102,11 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def read(self, path: str, size: int, offset: int, fh: int) -> bytes:
+        self.__alertLog.info(
+            "Accessed {} from offset {} to {} at target {}".format(
+                path, offset, offset + size, self.__target
+            )
+        )
         return self.__data[path][offset : offset + size]
 
     @fuse.overrides(fuse.Operations)
@@ -117,6 +135,9 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def rename(self, old: str, new: str) -> int:
+        self.__alertLog.info(
+            "File renamed from {} to {} at target {}".format(old, new, self.__target)
+        )
         if old in self.__data:
             self.__data[new] = self.__data.pop(old)
         if old in self.__files:
@@ -127,6 +148,9 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def rmdir(self, path: str) -> int:
+        self.__alertLog.info(
+            "Removed directory {} at target {}".format(path, self.__target)
+        )
         self.__files.pop(path)
         parent = self.__getParentPath(path)
         self.__files[parent]["st_nlink"] -= 1
@@ -164,6 +188,9 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def unlink(self, path: str) -> int:
+        self.__alertLog.info(
+            "Possible deletion of file at {} at target {}".format(path, self.__target)
+        )
         try:
             self.__data.pop(path)
         except KeyError:
@@ -181,6 +208,11 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def write(self, path: str, data, offset: int, fh: int) -> int:
+        self.__alertLog.info(
+            "File {} written with data of size {} at target {}".format(
+                path, len(data), self.__target
+            )
+        )
         self.__data[path] = (
             self.__data[path][:offset].ljust(offset, "\x00".encode("ascii"))
             + data
