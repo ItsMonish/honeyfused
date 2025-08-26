@@ -41,7 +41,6 @@ class HoneyFileSystem(fuse.LoggingMixIn, fuse.Operations):
 
     @fuse.overrides(fuse.Operations)
     def create(self, path: str, mode: int, fi=None) -> int:
-        print("Called {}".format(path))
         now = self.__getTime()
         self.__files[path] = {
             "st_mode": (stat.S_IFREG | mode),

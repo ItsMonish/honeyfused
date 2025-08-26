@@ -1,4 +1,5 @@
 from collections import defaultdict
+import logging
 from .fileConfigs import FILE_CONFIGS
 from random import randrange
 from typing import Any, Callable
@@ -9,6 +10,7 @@ import stat
 class FileGenerator:
     def __init__(self, target: str) -> None:
         self.__target = target
+        self.__logger = logging.getLogger("app")
         self.__files: dict[str, dict[str, Any]] = {
             "/": {
                 "st_mode": (stat.S_IFDIR | 0o755),
@@ -26,15 +28,17 @@ class FileGenerator:
 
     def __generateFiles(self) -> None:
         if FILE_CONFIGS.get(self.__target) == None:
-            print("[!!]: Target {} not found. Skipping...")
+            self.__logger.warning("[**]: Target {} not found. Skipping...")
             return
         target = FILE_CONFIGS[self.__target]
         if not isinstance(target["files"], dict):
-            print('[!!]: Error in internal config target["files"] is not dict')
+            self.__logger.error(
+                '[!!]: Error in internal config target["files"] is not dict'
+            )
             return
         for file, func in target["files"].items():
             if not isinstance(func, Callable):
-                print(
+                self.__logger.error(
                     '[!!]: Error in internal config target["files"]["{}"] is not a function'.format(
                         file
                     )
@@ -49,6 +53,11 @@ class FileGenerator:
                 "st_mtime": self.__getTime(randrange(100, 200)),
                 "st_atime": self.__getTime(randrange(0, 7)),
             }
+            self.__logger.info(
+                "[ii]: Generated file and contents for {} at {}".format(
+                    self.__target, file
+                )
+            )
         self.__isGenerated = True
 
     def getFiles(self) -> dict[str, dict[str, Any]]:
