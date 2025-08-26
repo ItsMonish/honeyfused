@@ -1,5 +1,5 @@
 # Honeyfused
-HoneyFiles is a Python-based application designed for Linux systems as a means of real time intrusion detection. It leverages FUSE (Filesystem in Userspace) bindings to create and mount decoy files in sensitive directories commonly targeted by infostealers. Whenever these decoy files are accessed, modified or deleted the application puts out an alert, acting as a lightweight intrusion detection system to detect unauthorized access or malicious activity. Note that, the said alerts are just logs, one would have to set up `watch` command on the log file or log aggregation software to generate actual alerts.
+Honeyfused is a Python-based application designed for Linux systems as a means of real time intrusion detection. It leverages FUSE (Filesystem in Userspace) bindings to create and mount decoy files in sensitive directories commonly targeted by infostealers. Whenever these decoy files are accessed, modified or deleted the application puts out an alert, acting as a lightweight intrusion detection system to detect unauthorized access or malicious activity. Note that, the said alerts are just logs, one would have to set up `watch` command on the log file or a log aggregation software to generate actual real-time alerts.
 
 Currently supported decoy files include:
 - Kubernetes (`kubeconfig`)
